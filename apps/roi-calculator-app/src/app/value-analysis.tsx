@@ -14,8 +14,6 @@ interface ValueMetrics {
   incidentResponseTime: number;
   analystRetention: number;
   complianceEfficiency: number;
-  threatIntelligence: number;
-  automationValue: number;
   stressReduction: number;
   shiftCoverage: number;
 }
@@ -48,15 +46,26 @@ export const ValueAnalysis: React.FC<ValueAnalysisProps> = ({ inputs, results })
 
     // Risk Reduction Value (based on faster response time and better detection)
     const riskReductionPerIncident = 5000; // Average cost of incident escalation
-    const riskReduction = inputs.securityIncidentsPerMonth * 12 * riskReductionPerIncident * 0.3; // 30% risk reduction
+    // Calculate actual genuine incidents (excluding false positives)
+    const genuineIncidentsPerMonth = inputs.securityIncidentsPerMonth * (1 - inputs.falsePositiveRate / 100);
+    const riskReduction = genuineIncidentsPerMonth * 12 * riskReductionPerIncident * 0.3; // 30% risk reduction
 
     // Productivity Improvement (analysts focus on high-value tasks)
     const productivityHoursSaved = inputs.humanSOCAnalysts * analystHoursPerYear * 0.4; // 40% time saved
     const productivityImprovement = productivityHoursSaved * analystHourlyRate * 1.5; // 1.5x multiplier for high-value work
 
     // Incident Response Time Value
-    const timeReduction = inputs.averageIncidentResponseTime * 0.85; // 85% faster
-    const incidentResponseTime = inputs.securityIncidentsPerMonth * 12 * timeReduction * analystHourlyRate * 2; // 2 analysts per incident
+    const truePositivesPerMonth = inputs.securityIncidentsPerMonth * (1 - inputs.falsePositiveRate / 100);
+    const falsePositivesPerMonth = inputs.securityIncidentsPerMonth * (inputs.falsePositiveRate / 100);
+
+    // 85% savings on true positive incident response time
+    const truePositiveTimeSavings = truePositivesPerMonth * 12 * inputs.averageIncidentResponseTime * 0.85 * analystHourlyRate;
+
+    // 10% savings on false positive investigation time (assuming 1 hour per false positive)
+    const falsePositiveInvestigationTime = 1; // 1 hour to investigate false positive
+    const falsePositiveTimeSavings = falsePositivesPerMonth * 12 * falsePositiveInvestigationTime * 0.1 * analystHourlyRate;
+
+    const incidentResponseTime = truePositiveTimeSavings + falsePositiveTimeSavings;
 
     // Analyst Retention Value (reduced burnout)
     const turnoverCost = baseAnalystSalary * 0.5; // 50% of salary for replacement
@@ -65,13 +74,6 @@ export const ValueAnalysis: React.FC<ValueAnalysisProps> = ({ inputs, results })
     // Compliance Efficiency Value
     const complianceHoursPerYear = inputs.humanSOCAnalysts * 200; // 200 hours per analyst
     const complianceEfficiency = complianceHoursPerYear * analystHourlyRate * 0.7; // 70% efficiency improvement
-
-    // Threat Intelligence Value
-    const threatIntelligence = inputs.employeeCount * 50; // $50 per employee for better threat intel
-
-    // Automation Value (repetitive tasks)
-    const automationHours = inputs.humanSOCAnalysts * analystHoursPerYear * 0.3; // 30% automation
-    const automationValue = automationHours * analystHourlyRate;
 
     // Additional value from reduced stress and improved decision making
     const stressReductionValue = inputs.humanSOCAnalysts * 15000; // $15k per analyst for reduced stress
@@ -86,8 +88,6 @@ export const ValueAnalysis: React.FC<ValueAnalysisProps> = ({ inputs, results })
       incidentResponseTime,
       analystRetention,
       complianceEfficiency,
-      threatIntelligence,
-      automationValue,
       stressReduction: stressReductionValue,
       shiftCoverage: shiftCoverageValue,
     };
@@ -111,9 +111,16 @@ export const ValueAnalysis: React.FC<ValueAnalysisProps> = ({ inputs, results })
 
   const getColorForCategory = (index: number): string => {
     const colors = [
-      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
-      '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
-      '#FF9FF3', '#54A0FF'
+      '#60A5FA', // Blue
+      '#34D399', // Green
+      '#F59E0B', // Amber
+      '#EF4444', // Red
+      '#8B5CF6', // Purple
+      '#06B6D4', // Cyan
+      '#F97316', // Orange
+      '#EC4899', // Pink
+      '#10B981', // Emerald
+      '#6366F1'  // Indigo
     ];
     return colors[index % colors.length];
   };
@@ -125,14 +132,12 @@ export const ValueAnalysis: React.FC<ValueAnalysisProps> = ({ inputs, results })
     { name: 'Faster Response Time', value: valueMetrics.incidentResponseTime, description: 'Reduced incident impact and costs' },
     { name: 'Analyst Retention', value: valueMetrics.analystRetention, description: 'Reduced turnover and training costs' },
     { name: 'Compliance Efficiency', value: valueMetrics.complianceEfficiency, description: 'Streamlined compliance processes' },
-    { name: 'Threat Intelligence', value: valueMetrics.threatIntelligence, description: 'Better threat detection and prevention' },
-    { name: 'Automation Value', value: valueMetrics.automationValue, description: 'Automated repetitive tasks' },
     { name: 'Stress Reduction', value: valueMetrics.stressReduction, description: 'Improved analyst well-being and decision making' },
     { name: '24/7 Coverage', value: valueMetrics.shiftCoverage, description: 'Continuous monitoring without shift premiums' },
   ].sort((a, b) => b.value - a.value); // Sort by value descending
 
   return (
-    <Card sx={{ mb: 3 }}>
+    <Card sx={{ mb: 3, background: 'rgba(15, 15, 15, 0.8)' }}>
       <Box sx={{ mb: 3 }}>
         <Typography level="h2" sx={{ mb: 1 }}>
           Value Creation Analysis
@@ -144,7 +149,7 @@ export const ValueAnalysis: React.FC<ValueAnalysisProps> = ({ inputs, results })
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid xs={12} md={4}>
-          <Card variant="soft" color="primary" sx={{ textAlign: 'center', p: 3 }}>
+          <Card variant="soft" color="primary" sx={{ textAlign: 'center', p: 3, height: '200px' }}>
             <Typography level="h4" sx={{ mb: 1 }}>
               Total Value Created
             </Typography>
@@ -187,7 +192,7 @@ export const ValueAnalysis: React.FC<ValueAnalysisProps> = ({ inputs, results })
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid xs={12} md={6}>
-          <Card variant="outlined" sx={{ p: 3 }}>
+          <Card variant="outlined" sx={{ p: 3, height: '100%' }}>
             <Typography level="h4" sx={{ mb: 2 }}>
               Value Distribution
             </Typography>
@@ -199,41 +204,46 @@ export const ValueAnalysis: React.FC<ValueAnalysisProps> = ({ inputs, results })
                   color: getColorForCategory(index),
                   description: category.description,
                 }))}
-                size={400}
-                strokeWidth={80}
+                size={500}
+                strokeWidth={100}
               />
             </Box>
           </Card>
         </Grid>
 
         <Grid xs={12} md={6}>
-          <Card variant="outlined" sx={{ p: 3 }}>
+          <Card variant="outlined" sx={{ p: 3, height: '100%' }}>
             <Typography level="h4" sx={{ mb: 2 }}>
               Value Categories
             </Typography>
-            <Stack spacing={2}>
+            <Stack spacing={3}>
               {valueCategories.map((category, index) => (
                 <Box key={category.name}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                    <Box
-                      sx={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: '50%',
-                        backgroundColor: getColorForCategory(index),
-                      }}
-                    />
-                    <Typography level="body-sm" fontWeight="bold">
-                      {category.name}
-                    </Typography>
-                  </Box>
-                  <Typography level="body-xs" color="neutral" sx={{ mb: 1 }}>
-                    {category.description}
-                  </Typography>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Box
+                        sx={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: '50%',
+                          backgroundColor: getColorForCategory(index),
+                        }}
+                      />
+                      <Typography level="body-sm" fontWeight="bold">
+                        {category.name}
+                      </Typography>
+                    </Box>
                     <Typography level="body-sm" fontWeight="bold">
                       {formatCurrency(category.value)}
                     </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box sx={{ width: 12, mr: 2 }} /> {/* Spacer to align with category name */}
+                      <Typography level="body-xs" color="neutral">
+                        {category.description}
+                      </Typography>
+                    </Box>
                     <Typography level="body-xs" color="neutral">
                       {formatPercentage(category.value)}
                     </Typography>
@@ -241,55 +251,6 @@ export const ValueAnalysis: React.FC<ValueAnalysisProps> = ({ inputs, results })
                 </Box>
               ))}
             </Stack>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Typography level="h4" sx={{ mb: 2 }}>
-        Key Insights
-      </Typography>
-      <Grid container spacing={2}>
-        <Grid xs={12} sm={6} md={3}>
-          <Card variant="soft">
-            <Typography level="h4" sx={{ mb: 1 }}>
-              Analyst Experience
-            </Typography>
-            <Typography level="body-sm">
-              Reducing false positives by {((inputs.falsePositiveRate - 5) / inputs.falsePositiveRate * 100).toFixed(0)}% allows analysts to focus on genuine threats, improving job satisfaction and retention.
-            </Typography>
-          </Card>
-        </Grid>
-
-        <Grid xs={12} sm={6} md={3}>
-          <Card variant="soft">
-            <Typography level="h4" sx={{ mb: 1 }}>
-              Risk Mitigation
-            </Typography>
-            <Typography level="body-sm">
-              Faster incident response and better threat detection prevent costly escalations and reduce overall security risk exposure.
-            </Typography>
-          </Card>
-        </Grid>
-
-        <Grid xs={12} sm={6} md={3}>
-          <Card variant="soft">
-            <Typography level="h4" sx={{ mb: 1 }}>
-              Operational Efficiency
-            </Typography>
-            <Typography level="body-sm">
-              Automation of repetitive tasks frees up {((valueMetrics.automationValue / (inputs.humanSOCAnalysts * 85000)) * 100).toFixed(0)}% of analyst time for strategic security initiatives.
-            </Typography>
-          </Card>
-        </Grid>
-
-        <Grid xs={12} sm={6} md={3}>
-          <Card variant="soft">
-            <Typography level="h4" sx={{ mb: 1 }}>
-              Scalability
-            </Typography>
-            <Typography level="body-sm">
-              Autonomous SOC scales with your organization without proportional increases in headcount or infrastructure costs.
-            </Typography>
           </Card>
         </Grid>
       </Grid>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Box from '@mui/joy/Box';
 
 interface PieChartData {
@@ -21,6 +21,7 @@ export const PieChart: React.FC<PieChartProps> = ({
 }) => {
   const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const radius = (size - strokeWidth) / 2;
@@ -37,7 +38,7 @@ export const PieChart: React.FC<PieChartProps> = ({
     }).format(amount);
   };
 
-  const createArc = (startAngle: number, endAngle: number, color: string, index: number) => {
+  const createArc = (startAngle: number, endAngle: number, color: string, index: number, item: PieChartData) => {
     const startRadians = (startAngle * Math.PI) / 180;
     const endRadians = (endAngle * Math.PI) / 180;
 
@@ -55,9 +56,24 @@ export const PieChart: React.FC<PieChartProps> = ({
     let tooltipX = center + tooltipRadius * Math.cos(midRadians);
     let tooltipY = center + tooltipRadius * Math.sin(midRadians);
 
-    // Adjust tooltip position to keep it within bounds
-    const tooltipWidth = 160;
-    const tooltipHeight = 90;
+    // Calculate tooltip dimensions based on content
+    const getTooltipDimensions = (name: string, value: number, description?: string) => {
+      const nameLength = name.length;
+      const valueLength = formatCurrency(value).length;
+      const descLength = description ? description.length : 0;
+
+      // Base width on longest text line
+      const maxTextLength = Math.max(nameLength, valueLength, descLength);
+      const tooltipWidth = Math.max(160, Math.min(300, maxTextLength * 8 + 40)); // 8px per character + padding
+
+      // Height based on number of lines
+      const hasDescription = description && description.length > 0;
+      const tooltipHeight = hasDescription ? 110 : 90;
+
+      return { tooltipWidth, tooltipHeight };
+    };
+
+    const { tooltipWidth, tooltipHeight } = getTooltipDimensions(item.name, item.value, item.description);
     const margin = 10;
 
     if (tooltipX - tooltipWidth / 2 < margin) {
@@ -80,10 +96,18 @@ export const PieChart: React.FC<PieChartProps> = ({
         stroke="white"
         strokeWidth="2"
         onMouseEnter={(e) => {
+          if (hideTimeoutRef.current) {
+            clearTimeout(hideTimeoutRef.current);
+            hideTimeoutRef.current = null;
+          }
           setHoveredSlice(index);
           setTooltipPosition({ x: tooltipX, y: tooltipY });
         }}
-        onMouseLeave={() => setHoveredSlice(null)}
+        onMouseLeave={() => {
+          hideTimeoutRef.current = setTimeout(() => {
+            setHoveredSlice(null);
+          }, 100);
+        }}
         style={{ cursor: 'pointer' }}
       />
     );
@@ -97,7 +121,7 @@ export const PieChart: React.FC<PieChartProps> = ({
           const startAngle = currentAngle;
           const endAngle = currentAngle + (percentage * 360) / 100;
 
-          const arc = createArc(startAngle, endAngle, item.color, index);
+          const arc = createArc(startAngle, endAngle, item.color, index, item);
           currentAngle = endAngle;
 
           return <React.Fragment key={index}>{arc}</React.Fragment>;
@@ -107,23 +131,56 @@ export const PieChart: React.FC<PieChartProps> = ({
         <circle
           cx={center}
           cy={center}
-          r={radius - strokeWidth / 2}
-          fill="white"
+          r={radius - strokeWidth / 1.2}
+          fill="#1a1a1a"
+          stroke="#fff"
+          strokeWidth="2"
         />
 
         {/* Tooltip */}
-        {hoveredSlice !== null && (
-          <g className="tooltip">
-            <rect
-              x={tooltipPosition.x - 80}
-              y={tooltipPosition.y - 70}
-              width={160}
-              height={90}
-              rx={8}
-              fill="rgba(0, 0, 0, 0.9)"
-              stroke="white"
-              strokeWidth="1"
-            />
+        {hoveredSlice !== null && (() => {
+          const item = data[hoveredSlice];
+          const getTooltipDimensions = (name: string, value: number, description?: string) => {
+            const nameLength = name.length;
+            const valueLength = formatCurrency(value).length;
+            const descLength = description ? description.length : 0;
+
+            const maxTextLength = Math.max(nameLength, valueLength, descLength);
+            const tooltipWidth = Math.max(160, Math.min(300, maxTextLength * 8 + 40));
+
+            const hasDescription = description && description.length > 0;
+            const tooltipHeight = hasDescription ? 110 : 90;
+
+            return { tooltipWidth, tooltipHeight };
+          };
+
+          const { tooltipWidth, tooltipHeight } = getTooltipDimensions(item.name, item.value, item.description);
+
+          return (
+            <g
+              className="tooltip"
+              onMouseEnter={() => {
+                if (hideTimeoutRef.current) {
+                  clearTimeout(hideTimeoutRef.current);
+                  hideTimeoutRef.current = null;
+                }
+              }}
+              onMouseLeave={() => {
+                hideTimeoutRef.current = setTimeout(() => {
+                  setHoveredSlice(null);
+                }, 100);
+              }}
+            >
+              <rect
+                x={tooltipPosition.x - tooltipWidth / 2}
+                y={tooltipPosition.y - tooltipHeight + 10}
+                width={tooltipWidth}
+                height={tooltipHeight}
+                rx={8}
+                fill="rgba(0, 0, 0, 0.9)"
+                stroke="white"
+                strokeWidth="1"
+              />
             <text
               x={tooltipPosition.x}
               y={tooltipPosition.y - 45}
@@ -132,7 +189,7 @@ export const PieChart: React.FC<PieChartProps> = ({
               fontSize="12"
               fontWeight="600"
             >
-              {data[hoveredSlice].name}
+              {item.name}
             </text>
             <text
               x={tooltipPosition.x}
@@ -142,7 +199,7 @@ export const PieChart: React.FC<PieChartProps> = ({
               fontSize="11"
               fontWeight="600"
             >
-              {formatCurrency(data[hoveredSlice].value)}
+              {formatCurrency(item.value)}
             </text>
             <text
               x={tooltipPosition.x}
@@ -151,9 +208,9 @@ export const PieChart: React.FC<PieChartProps> = ({
               fill="#FFEAA7"
               fontSize="10"
             >
-              {((data[hoveredSlice].value / total) * 100).toFixed(1)}% of total
+              {((item.value / total) * 100).toFixed(1)}% of total
             </text>
-            {data[hoveredSlice].description && (
+            {item.description && (
               <text
                 x={tooltipPosition.x}
                 y={tooltipPosition.y + 15}
@@ -161,11 +218,12 @@ export const PieChart: React.FC<PieChartProps> = ({
                 fill="#CBD5E0"
                 fontSize="9"
               >
-                {data[hoveredSlice].description}
+                {item.description}
               </text>
             )}
           </g>
-        )}
+          );
+        })()}
       </svg>
     </Box>
   );

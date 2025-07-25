@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 * {
   box-sizing: border-box;
 }
@@ -6,8 +8,14 @@ html, body {
   font-size: 16px;
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
+}
+
+body {
+  background: #1a1a1a url('/bg.jpg') no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
 }
 
 .MuiAccordion-root {
