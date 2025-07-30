@@ -1,5 +1,5 @@
 export default {
-  displayName: '@org/roi-calculator-app',
+  displayName: '@stellarcyber/roi-calculator-app',
   preset: '../../jest.preset.js',
   transform: {
     '^(?!.*\\.(js|jsx|ts|tsx|css|json)$)': '@nx/react/plugins/jest',

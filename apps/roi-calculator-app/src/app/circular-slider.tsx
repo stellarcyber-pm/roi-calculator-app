@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Box from '@mui/joy/Box';
 import Typography from '@mui/joy/Typography';
 import { useColorScheme } from '@mui/joy/styles';
@@ -29,7 +29,7 @@ export const CircularSlider: React.FC<KnobProps> = ({
   const indicatorRef = useRef<HTMLDivElement>(null);
 
   // Convert value to rotation angle (225-135 degrees, 270-degree range)
-  const valueToRotation = (val: number) => {
+  const valueToRotation = useCallback((val: number) => {
     const percentage = (val - min) / (max - min);
     // Start at 225 degrees, go clockwise to 135 degrees
     // This creates a 270-degree range (225 -> 360 -> 135)
@@ -37,10 +37,10 @@ export const CircularSlider: React.FC<KnobProps> = ({
     // Add 180 degrees to fix the flip
     // Subtract 17.5 degrees to fix the 15-20 degree advancement
     return 140 - (percentage * 272);
-  };
+  }, [min, max]);
 
   // Convert rotation angle to value
-  const rotationToValue = (rotation: number) => {
+  const rotationToValue = useCallback((rotation: number) => {
     // Normalize rotation to 0-360 range
     let normalizedRotation = rotation;
     while (normalizedRotation < 0) normalizedRotation += 360;
@@ -68,15 +68,15 @@ export const CircularSlider: React.FC<KnobProps> = ({
     const percentage = angleInRange / 270;
     const rawValue = min + (percentage * (max - min));
     return Math.round(rawValue / step) * step;
-  };
+  }, [min, max, step]);
 
   // Update knob rotation
-  const updateKnobRotation = (newValue: number) => {
+  const updateKnobRotation = useCallback((newValue: number) => {
     if (indicatorRef.current) {
       const rotation = valueToRotation(newValue);
       indicatorRef.current.style.transform = `translateZ(0) rotate(${-rotation}deg)`;
     }
-  };
+  }, [valueToRotation]);
 
   // Get event point relative to knob
   const getEventPoint = (ev: MouseEvent | TouchEvent) => {
@@ -135,7 +135,7 @@ export const CircularSlider: React.FC<KnobProps> = ({
   };
 
   // Handle pointer change
-  const handlePointerChange = (ev: MouseEvent | TouchEvent) => {
+  const handlePointerChange = useCallback((ev: MouseEvent | TouchEvent) => {
     if (!knobRef.current) return;
 
     const r = knobRef.current.offsetWidth * 0.5;
@@ -152,7 +152,7 @@ export const CircularSlider: React.FC<KnobProps> = ({
     if (newValue !== value) {
       onChange(Math.max(min, Math.min(max, newValue)));
     }
-  };
+  }, [value, min, max, onChange, rotationToValue]);
 
   // Handle mouse/touch events
   const handleMouseDown = (ev: React.MouseEvent) => {
@@ -187,41 +187,33 @@ export const CircularSlider: React.FC<KnobProps> = ({
     }
   };
 
-  const handleMouseMove = (ev: MouseEvent) => {
+  const handleMouseMove = useCallback((ev: MouseEvent) => {
     if (isDragging) {
       ev.preventDefault();
       handlePointerChange(ev);
     }
-  };
+  }, [isDragging, handlePointerChange]);
 
-  const handleTouchMove = (ev: TouchEvent) => {
+  const handleTouchMove = useCallback((ev: TouchEvent) => {
     if (isDragging) {
       ev.preventDefault();
       handlePointerChange(ev);
     }
-  };
+  }, [isDragging, handlePointerChange]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
     if (indicatorRef.current) {
       indicatorRef.current.classList.remove('dragged');
     }
-  };
+  }, []);
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = useCallback(() => {
     setIsDragging(false);
     if (indicatorRef.current) {
       indicatorRef.current.classList.remove('dragged');
     }
-  };
-
-  const handleWheel = (ev: React.WheelEvent) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    const modifier = ev.deltaY > 0 ? -1 : 1;
-    const newValue = Math.min(max, Math.max(min, value + modifier * step));
-    onChange(newValue);
-  };
+  }, []);
 
   const handleInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseFloat(ev.target.value) || min;
@@ -231,7 +223,7 @@ export const CircularSlider: React.FC<KnobProps> = ({
   // Update rotation when value changes
   useEffect(() => {
     updateKnobRotation(value);
-  }, [value]);
+  }, [value, updateKnobRotation]);
 
   // Add global event listeners
   useEffect(() => {
@@ -248,7 +240,7 @@ export const CircularSlider: React.FC<KnobProps> = ({
         document.removeEventListener('touchend', handleTouchEnd);
       };
     }
-  }, [isDragging]);
+  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   const isDark = mode === 'dark';
   const knobSize = size;

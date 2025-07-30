@@ -38,6 +38,23 @@ export const PieChart: React.FC<PieChartProps> = ({
     }).format(amount);
   };
 
+  // Calculate tooltip dimensions based on content
+  const getTooltipDimensions = (name: string, value: number, description?: string) => {
+    const nameLength = name.length;
+    const valueLength = formatCurrency(value).length;
+    const descLength = description ? description.length : 0;
+
+    // Base width on longest text line
+    const maxTextLength = Math.max(nameLength, valueLength, descLength);
+    const tooltipWidth = Math.max(160, Math.min(300, maxTextLength * 8 + 40)); // 8px per character + padding
+
+    // Height based on number of lines
+    const hasDescription = description && description.length > 0;
+    const tooltipHeight = hasDescription ? 110 : 90;
+
+    return { tooltipWidth, tooltipHeight };
+  };
+
   const createArc = (startAngle: number, endAngle: number, color: string, index: number, item: PieChartData) => {
     const startRadians = (startAngle * Math.PI) / 180;
     const endRadians = (endAngle * Math.PI) / 180;
@@ -55,23 +72,6 @@ export const PieChart: React.FC<PieChartProps> = ({
     const tooltipRadius = radius * 0.7; // Position tooltip at 70% of radius
     let tooltipX = center + tooltipRadius * Math.cos(midRadians);
     let tooltipY = center + tooltipRadius * Math.sin(midRadians);
-
-    // Calculate tooltip dimensions based on content
-    const getTooltipDimensions = (name: string, value: number, description?: string) => {
-      const nameLength = name.length;
-      const valueLength = formatCurrency(value).length;
-      const descLength = description ? description.length : 0;
-
-      // Base width on longest text line
-      const maxTextLength = Math.max(nameLength, valueLength, descLength);
-      const tooltipWidth = Math.max(160, Math.min(300, maxTextLength * 8 + 40)); // 8px per character + padding
-
-      // Height based on number of lines
-      const hasDescription = description && description.length > 0;
-      const tooltipHeight = hasDescription ? 110 : 90;
-
-      return { tooltipWidth, tooltipHeight };
-    };
 
     const { tooltipWidth, tooltipHeight } = getTooltipDimensions(item.name, item.value, item.description);
     const margin = 10;
@@ -140,20 +140,6 @@ export const PieChart: React.FC<PieChartProps> = ({
         {/* Tooltip */}
         {hoveredSlice !== null && (() => {
           const item = data[hoveredSlice];
-          const getTooltipDimensions = (name: string, value: number, description?: string) => {
-            const nameLength = name.length;
-            const valueLength = formatCurrency(value).length;
-            const descLength = description ? description.length : 0;
-
-            const maxTextLength = Math.max(nameLength, valueLength, descLength);
-            const tooltipWidth = Math.max(160, Math.min(300, maxTextLength * 8 + 40));
-
-            const hasDescription = description && description.length > 0;
-            const tooltipHeight = hasDescription ? 110 : 90;
-
-            return { tooltipWidth, tooltipHeight };
-          };
-
           const { tooltipWidth, tooltipHeight } = getTooltipDimensions(item.name, item.value, item.description);
 
           return (

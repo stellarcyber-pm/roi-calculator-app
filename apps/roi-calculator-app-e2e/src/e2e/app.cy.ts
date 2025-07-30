@@ -1,6 +1,6 @@
 import { getGreeting } from '../support/app.po';
 
-describe('@org/roi-calculator-app-e2e', () => {
+describe('@stellarcyber/roi-calculator-app-e2e', () => {
   beforeEach(() => cy.visit('/'));
 
   it('should display app title', () => {

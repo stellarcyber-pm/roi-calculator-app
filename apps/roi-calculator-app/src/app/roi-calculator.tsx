@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Box from '@mui/joy/Box';
 import Typography from '@mui/joy/Typography';
 import Button from '@mui/joy/Button';
@@ -114,9 +114,9 @@ export const ROICalculator: React.FC = () => {
   const [inputs, setInputs] = useState<CalculationInputs>(loadInputsFromStorage);
   const [results, setResults] = useState<CalculationResults | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { mode, setMode } = useColorScheme();
+  const { mode } = useColorScheme();
 
-  const calculateROI = (): CalculationResults => {
+  const calculateROI = useCallback((): CalculationResults => {
     // Human SOC annual costs
     const analystSalary = 85000;
     const managerSalary = 120000;
@@ -202,11 +202,11 @@ export const ROICalculator: React.FC = () => {
       efficiencyImprovement,
       incidentResponseImprovement,
     };
-  };
+  }, [inputs]);
 
   useEffect(() => {
     setResults(calculateROI());
-  }, [inputs]);
+  }, [inputs, calculateROI]);
 
   const handleInputChange = (field: keyof CalculationInputs, value: string | number | boolean) => {
     setInputs(prev => {

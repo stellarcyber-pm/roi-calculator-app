@@ -7,10 +7,10 @@ export default defineConfig({
       cypressDir: 'src',
       bundler: 'vite',
       webServerCommands: {
-        default: 'npx nx run @org/roi-calculator-app:dev',
-        production: 'npx nx run @org/roi-calculator-app:preview',
+        default: 'npx nx run @stellarcyber/roi-calculator-app:dev',
+        production: 'npx nx run @stellarcyber/roi-calculator-app:preview',
       },
-      ciWebServerCommand: 'npx nx run @org/roi-calculator-app:preview',
+      ciWebServerCommand: 'npx nx run @stellarcyber/roi-calculator-app:preview',
       ciBaseUrl: 'http://localhost:4300',
     }),
     baseUrl: 'http://localhost:4200',

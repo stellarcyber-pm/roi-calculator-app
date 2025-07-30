@@ -1,10 +1,10 @@
 {
-  "name": "@org/roi-calculator-app-e2e",
-  "version": "0.0.1",
+  "name": "@stellarcyber/roi-calculator-app-e2e",
+  "version": "0.0.0-development",
   "private": true,
   "nx": {
     "implicitDependencies": [
-      "@org/roi-calculator-app"
+      "@stellarcyber/roi-calculator-app"
     ]
   }
 }

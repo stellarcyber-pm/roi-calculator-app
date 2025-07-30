@@ -1,15 +1,39 @@
 import { render } from '@testing-library/react';
+import { CssVarsProvider } from '@mui/joy/styles';
 
 import App from './app';
 
+// Mock window.matchMedia for tests
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
 describe('App', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<App />);
+    const { baseElement } = render(
+      <CssVarsProvider>
+        <App />
+      </CssVarsProvider>
+    );
     expect(baseElement).toBeTruthy();
   });
 
   it('should render the ROI calculator', () => {
-    const { getByText } = render(<App />);
-    expect(getByText('Cybersecurity ROI Calculator')).toBeTruthy();
+    const { getByText } = render(
+      <CssVarsProvider>
+        <App />
+      </CssVarsProvider>
+    );
+    expect(getByText('Autonomous SOC ROI Calculator')).toBeTruthy();
   });
 });
