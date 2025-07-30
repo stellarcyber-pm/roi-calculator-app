@@ -1,0 +1,26 @@
+name: Continuous Deployment
+on:
+  workflow_run:
+    workflows: [Continuous Integration]
+    types: [completed]
+    branches: [main]
+jobs:
+  semantic_release:
+    name: Semantic Release
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: stellarcyber-core/actions/.github/workflows/semantic-release.yaml@main
+    secrets:
+      GIT_TOKEN_BASIC: ${{ secrets.GIT_TOKEN_BASIC }}
+
+  github_pages:
+    name: GitHub Pages
+    needs: semantic_release
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: stellarcyber-core/actions/.github/workflows/deploy-github-pages.yaml@main
+    permissions:
+      pages: write
+      id-token: write
+    with:
+      buildOutputPath: apps/roi-calculator-app/dist/
+    secrets:
+      GIT_TOKEN_BASIC: ${{ secrets.GIT_TOKEN_BASIC }}
