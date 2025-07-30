@@ -7,7 +7,11 @@
     "url": "git@github.com:stellarcyber-pm/roi-calculator-app.git"
   },
   "scripts": {
-    "start": "nx serve roi-calculator-app"
+    "build": "nx run-many --all --target=build",
+    "e2e": "nx e2e ui-kit-site-e2e",
+    "lint": "nx run-many --all --target=lint",
+    "start": "nx serve roi-calculator-app",
+    "test": "nx run-many --all --target=test"
   },
   "private": true,
   "dependencies": {
