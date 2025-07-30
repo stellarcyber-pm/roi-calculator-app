@@ -149,11 +149,11 @@ export const ValueAnalysis: React.FC<ValueAnalysisProps> = ({ inputs, results })
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid xs={12} md={4}>
-          <Card variant="soft" color="primary" sx={{ textAlign: 'center', p: 3, height: '200px' }}>
+          <Card variant="soft" color="primary" sx={{ textAlign: 'center', p: 3, height: '11.125rem' }}>
             <Typography level="h4" sx={{ mb: 1 }}>
               Total Value Created
             </Typography>
-            <Typography level="h1" sx={{ mb: 1 }}>
+            <Typography level="h1" sx={{ mb: 1, letterSpacing: '0.0125em', fontSize: '2.5rem' }}>
               {formatCurrency(totalValue)}
             </Typography>
             <Typography level="body-sm">

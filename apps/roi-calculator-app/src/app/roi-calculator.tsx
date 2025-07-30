@@ -392,7 +392,7 @@ export const ROICalculator: React.FC = () => {
             src="/logo.svg"
             alt="Stellar Cyber Logo"
             style={{
-              height: '24px',
+              height: '32px',
               width: 'auto',
               filter: mode === 'dark' ? 'brightness(0) invert(1)' : 'none'
             }}
@@ -433,7 +433,7 @@ export const ROICalculator: React.FC = () => {
                         max={5000}
                         step={50}
                         label="Number of Employees"
-                        size={300}
+                        size={400}
                       />
                     </Box>
                   </Grid>
@@ -479,7 +479,7 @@ export const ROICalculator: React.FC = () => {
                       : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
                     color: mode === 'dark' ? 'white' : '#374151',
                     height: '100%',
-                    minHeight: '200px',
+                    minHeight: '12rem',
                     '& .MuiTypography-root': {
                       color: mode === 'dark' ? 'white' : '#374151'
                     }
@@ -500,7 +500,7 @@ export const ROICalculator: React.FC = () => {
                       : 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)',
                     color: mode === 'dark' ? 'white' : '#059669',
                     height: '100%',
-                    minHeight: '200px',
+                    minHeight: '12rem',
                     '& .MuiTypography-root': {
                       color: mode === 'dark' ? 'white' : '#059669'
                     }
@@ -521,7 +521,7 @@ export const ROICalculator: React.FC = () => {
                       : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
                     color: mode === 'dark' ? 'white' : '#374151',
                     height: '100%',
-                    minHeight: '200px',
+                    minHeight: '12rem',
                     '& .MuiTypography-root': {
                       color: mode === 'dark' ? 'white' : '#374151'
                     }
@@ -542,7 +542,7 @@ export const ROICalculator: React.FC = () => {
                       : 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)',
                     color: mode === 'dark' ? 'white' : '#059669',
                     height: '100%',
-                    minHeight: '200px',
+                    minHeight: '12rem',
                     '& .MuiTypography-root': {
                       color: mode === 'dark' ? 'white' : '#059669'
                     }
@@ -552,7 +552,7 @@ export const ROICalculator: React.FC = () => {
                       {formatCurrency(results.platformSavings)}
                     </Typography>
                     <Typography level="body-sm">
-                      SIEM licensing - Stellar XDR platform costs
+                      Stellar XDR platform savings
                     </Typography>
                   </Card>
                 </Grid>
@@ -563,7 +563,7 @@ export const ROICalculator: React.FC = () => {
                       : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
                     color: mode === 'dark' ? 'white' : '#374151',
                     height: '100%',
-                    minHeight: '200px',
+                    minHeight: '12rem',
                     '& .MuiTypography-root': {
                       color: mode === 'dark' ? 'white' : '#374151'
                     }
@@ -584,7 +584,7 @@ export const ROICalculator: React.FC = () => {
                       : 'linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%)',
                     color: mode === 'dark' ? 'white' : '#7c3aed',
                     height: '100%',
-                    minHeight: '200px',
+                    minHeight: '12rem',
                     '& .MuiTypography-root': {
                       color: mode === 'dark' ? 'white' : '#7c3aed'
                     }
@@ -605,7 +605,7 @@ export const ROICalculator: React.FC = () => {
                       : 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)',
                     color: mode === 'dark' ? 'white' : '#059669',
                     height: '100%',
-                    minHeight: '200px',
+                    minHeight: '12rem',
                     '& .MuiTypography-root': {
                       color: mode === 'dark' ? 'white' : '#059669'
                     }
