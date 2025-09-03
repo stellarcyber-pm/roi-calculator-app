@@ -18,8 +18,7 @@ import Slider from '@mui/joy/Slider';
 import { useColorScheme } from '@mui/joy/styles';
 import { ValueAnalysis } from './value-analysis';
 import { CircularSlider } from './circular-slider';
-import Select from '@mui/joy/Select';
-import Option from '@mui/joy/Option';
+
 
 interface CalculationInputs {
   // Company size inputs
@@ -116,14 +115,6 @@ export const ROICalculator: React.FC = () => {
   const [inputs, setInputs] = useState<CalculationInputs>(loadInputsFromStorage);
   const [results, setResults] = useState<CalculationResults | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'monetary' | 'operational'>(() => {
-    try {
-      const saved = localStorage.getItem('roi-calculator-view-mode');
-      return saved === 'operational' ? 'operational' : 'monetary';
-    } catch {
-      return 'monetary';
-    }
-  });
   const { mode } = useColorScheme();
 
   const calculateROI = useCallback((): CalculationResults => {
@@ -218,13 +209,7 @@ export const ROICalculator: React.FC = () => {
     setResults(calculateROI());
   }, [inputs, calculateROI]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem('roi-calculator-view-mode', viewMode);
-    } catch (error) {
-      console.warn('Failed to save view mode to localStorage:', error);
-    }
-  }, [viewMode]);
+
 
   const handleInputChange = (field: keyof CalculationInputs, value: string | number | boolean) => {
     setInputs(prev => {
@@ -502,282 +487,140 @@ export const ROICalculator: React.FC = () => {
                     const annualTimeSavings = monthlyTimeSavings * 12;
 
                     return (
-                      <>
-                        {viewMode === 'monetary' ? (
-                          <Grid container spacing={2}>
-                            <Grid xs={12} sm={6}>
-                              <Card sx={{
-                                background: mode === 'dark'
-                                  ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'
-                                  : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                                color: mode === 'dark' ? 'white' : '#374151',
-                                height: '100%',
-                                minHeight: '12rem',
-                                '& .MuiTypography-root': {
-                                  color: mode === 'dark' ? 'white' : '#374151'
-                                }
-                              }}>
-                                <Typography level="h4">Human SOC Annual Cost</Typography>
-                                <Typography level="h2">
-                                  {formatCurrency(results.humanSOCTotalCost)}
-                                </Typography>
-                                <Typography level="body-sm">
-                                  Traditional security operations center with human analysts
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid xs={12} sm={6}>
-                              <Card sx={{
-                                background: mode === 'dark'
-                                  ? 'linear-gradient(135deg, #059669 0%, #047857 100%)'
-                                  : 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)',
-                                color: mode === 'dark' ? 'white' : '#059669',
-                                height: '100%',
-                                minHeight: '12rem',
-                                '& .MuiTypography-root': {
-                                  color: mode === 'dark' ? 'white' : '#059669'
-                                }
-                              }}>
-                                <Typography level="h4">Efficiency Improvement</Typography>
-                                <Typography level="h2">
-                                  {formatPercentage(results.efficiencyImprovement)}
-                                </Typography>
-                                <Typography level="body-sm">
-                                  Operational efficiency gain
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid xs={12} sm={6}>
-                              <Card sx={{
-                                background: mode === 'dark'
-                                  ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'
-                                  : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                                color: mode === 'dark' ? 'white' : '#374151',
-                                height: '100%',
-                                minHeight: '12rem',
-                                '& .MuiTypography-root': {
-                                  color: mode === 'dark' ? 'white' : '#374151'
-                                }
-                              }}>
-                                <Typography level="h4">Adjusted Annual SOC Cost</Typography>
-                                <Typography level="h2">
-                                  {formatCurrency(results.adjustedAnnualSOCCost)}
-                                </Typography>
-                                <Typography level="body-sm">
-                                  Efficiency-adjusted human SOC cost
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid xs={12} sm={6}>
-                              <Card sx={{
-                                background: mode === 'dark'
-                                  ? 'linear-gradient(135deg, #059669 0%, #047857 100%)'
-                                  : 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)',
-                                color: mode === 'dark' ? 'white' : '#059669',
-                                height: '100%',
-                                minHeight: '12rem',
-                                '& .MuiTypography-root': {
-                                  color: mode === 'dark' ? 'white' : '#059669'
-                                }
-                              }}>
-                                <Typography level="h4">Platform Savings</Typography>
-                                <Typography level="h2">
-                                  {formatCurrency(results.platformSavings)}
-                                </Typography>
-                                <Typography level="body-sm">
-                                  Stellar XDR platform savings
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid xs={12} sm={6}>
-                              <Card sx={{
-                                background: mode === 'dark'
-                                  ? 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)'
-                                  : 'linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%)',
-                                color: mode === 'dark' ? 'white' : '#7c3aed',
-                                height: '100%',
-                                minHeight: '12rem',
-                                '& .MuiTypography-root': {
-                                  color: mode === 'dark' ? 'white' : '#7c3aed'
-                                }
-                              }}>
-                                <Typography level="h4">ROI</Typography>
-                                <Typography level="h2">
-                                  {formatPercentage(results.roiPercentage)}
-                                </Typography>
-                                <Typography level="body-sm">
-                                  Return on investment
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid xs={12} sm={6}>
-                              <Card sx={{
-                                background: mode === 'dark'
-                                  ? 'linear-gradient(135deg, #059669 0%, #047857 100%)'
-                                  : 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)',
-                                color: mode === 'dark' ? 'white' : '#059669',
-                                height: '100%',
-                                minHeight: '12rem',
-                                '& .MuiTypography-root': {
-                                  color: mode === 'dark' ? 'white' : '#059669'
-                                }
-                              }}>
-                                <Typography level="h4">Annual Savings</Typography>
-                                <Typography level="h2">
-                                  {formatCurrency(results.annualSavings)}
-                                </Typography>
-                                <Typography level="body-sm">
-                                  Cost reduction with Autonomous SOC
-                                </Typography>
-                              </Card>
-                            </Grid>
-                          </Grid>
-                        ) : (
-                          <Grid container spacing={2}>
-                            <Grid xs={12} sm={6}>
-                              <Card sx={{
-                                background: mode === 'dark'
-                                  ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'
-                                  : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                                color: mode === 'dark' ? 'white' : '#374151',
-                                height: '100%',
-                                minHeight: '12rem',
-                                '& .MuiTypography-root': {
-                                  color: mode === 'dark' ? 'white' : '#374151'
-                                }
-                              }}>
-                                <Typography level="h4">Total SOC Headcount</Typography>
-                                <Typography level="h2">
-                                  {totalHeadcount.toLocaleString()}
-                                </Typography>
-                                <Typography level="body-sm">
-                                  Current combined team size
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid xs={12} sm={6}>
-                              <Card sx={{
-                                background: mode === 'dark'
-                                  ? 'linear-gradient(135deg, #059669 0%, #047857 100%)'
-                                  : 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)',
-                                color: mode === 'dark' ? 'white' : '#059669',
-                                height: '100%',
-                                minHeight: '12rem',
-                                '& .MuiTypography-root': {
-                                  color: mode === 'dark' ? 'white' : '#059669'
-                                }
-                              }}>
-                                <Typography level="h4">Efficiency Improvement</Typography>
-                                <Typography level="h2">
-                                  {formatPercentage(results.efficiencyImprovement)}
-                                </Typography>
-                                <Typography level="body-sm">
-                                  Operational efficiency gain
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid xs={12} sm={6}>
-                              <Card sx={{
-                                background: mode === 'dark'
-                                  ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'
-                                  : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                                color: mode === 'dark' ? 'white' : '#374151',
-                                height: '100%',
-                                minHeight: '12rem',
-                                '& .MuiTypography-root': {
-                                  color: mode === 'dark' ? 'white' : '#374151'
-                                }
-                              }}>
-                                <Typography level="h4">Freed Employees</Typography>
-                                <Typography level="h2">
-                                  {freedEmployees.toLocaleString()}
-                                </Typography>
-                                <Typography level="body-sm">
-                                  Team members freed for higher-value work
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid xs={12} sm={6}>
-                              <Card sx={{
-                                background: mode === 'dark'
-                                  ? 'linear-gradient(135deg, #059669 0%, #047857 100%)'
-                                  : 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)',
-                                color: mode === 'dark' ? 'white' : '#059669',
-                                height: '100%',
-                                minHeight: '12rem',
-                                '& .MuiTypography-root': {
-                                  color: mode === 'dark' ? 'white' : '#059669'
-                                }
-                              }}>
-                                <Typography level="h4">Monthly Time Savings</Typography>
-                                <Typography level="h2">
-                                  {formatHours(monthlyTimeSavings)}
-                                </Typography>
-                                <Typography level="body-sm">
-                                  Saved worker hours per month
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid xs={12} sm={6}>
-                              <Card sx={{
-                                background: mode === 'dark'
-                                  ? 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)'
-                                  : 'linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%)',
-                                color: mode === 'dark' ? 'white' : '#7c3aed',
-                                height: '100%',
-                                minHeight: '12rem',
-                                '& .MuiTypography-root': {
-                                  color: mode === 'dark' ? 'white' : '#7c3aed'
-                                }
-                              }}>
-                                <Typography level="h4">ROI</Typography>
-                                <Typography level="h2">
-                                  {formatPercentage(results.roiPercentage)}
-                                </Typography>
-                                <Typography level="body-sm">
-                                  Return on investment
-                                </Typography>
-                              </Card>
-                            </Grid>
-                            <Grid xs={12} sm={6}>
-                              <Card sx={{
-                                background: mode === 'dark'
-                                  ? 'linear-gradient(135deg, #059669 0%, #047857 100%)'
-                                  : 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)',
-                                color: mode === 'dark' ? 'white' : '#059669',
-                                height: '100%',
-                                minHeight: '12rem',
-                                '& .MuiTypography-root': {
-                                  color: mode === 'dark' ? 'white' : '#059669'
-                                }
-                              }}>
-                                <Typography level="h4">Annual Time Savings</Typography>
-                                <Typography level="h2">
-                                  {formatHours(annualTimeSavings)}
-                                </Typography>
-                                <Typography level="body-sm">
-                                  Saved worker hours per year
-                                </Typography>
-                              </Card>
-                            </Grid>
-                          </Grid>
-                        )}
-
-                        <Box sx={{ mt: 2 }}>
-                          <Select
-                            value={viewMode}
-                            onChange={(_, value) => {
-                              if (value === 'monetary' || value === 'operational') {
-                                setViewMode(value);
+                      <Grid container spacing={2}>
+                          {/* Top Left: Annual Savings */}
+                          <Grid xs={12} sm={6}>
+                            <Card sx={{
+                              background: mode === 'dark'
+                                ? 'linear-gradient(135deg, #059669 0%, #047857 100%)'
+                                : 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)',
+                              color: mode === 'dark' ? 'white' : '#059669',
+                              height: '100%',
+                              minHeight: '12rem',
+                              '& .MuiTypography-root': {
+                                color: mode === 'dark' ? 'white' : '#059669'
                               }
-                            }}
-                            size="sm"
-                          >
-                            <Option value="monetary">Show value as a monetary figures</Option>
-                            <Option value="operational">Show value as operational figures</Option>
-                          </Select>
-                        </Box>
-                      </>
+                            }}>
+                              <Typography level="h4">Annual Savings</Typography>
+                              <Typography level="h2">
+                                {formatCurrency(results.annualSavings)}
+                              </Typography>
+                              <Typography level="body-sm">
+                                Cost reduction with Autonomous SOC
+                              </Typography>
+                            </Card>
+                          </Grid>
+                          {/* Top Right: Annual Time Savings */}
+                          <Grid xs={12} sm={6}>
+                            <Card sx={{
+                              background: mode === 'dark'
+                                ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'
+                                : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                              color: mode === 'dark' ? 'white' : '#374151',
+                              height: '100%',
+                              minHeight: '12rem',
+                              '& .MuiTypography-root': {
+                                color: mode === 'dark' ? 'white' : '#374151'
+                              }
+                            }}>
+                              <Typography level="h4">Annual Time Savings</Typography>
+                              <Typography level="h2">
+                                {formatHours(annualTimeSavings)}
+                              </Typography>
+                              <Typography level="body-sm">
+                                Saved worker hours per year
+                              </Typography>
+                            </Card>
+                          </Grid>
+                          {/* Middle Left: Platform Savings */}
+                          <Grid xs={12} sm={6}>
+                            <Card sx={{
+                              background: mode === 'dark'
+                                ? 'linear-gradient(135deg, #059669 0%, #047857 100%)'
+                                : 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)',
+                              color: mode === 'dark' ? 'white' : '#059669',
+                              height: '100%',
+                              minHeight: '12rem',
+                              '& .MuiTypography-root': {
+                                color: mode === 'dark' ? 'white' : '#059669'
+                              }
+                            }}>
+                              <Typography level="h4">Platform Savings</Typography>
+                              <Typography level="h2">
+                                {formatCurrency(results.platformSavings)}
+                              </Typography>
+                              <Typography level="body-sm">
+                                Stellar XDR platform savings
+                              </Typography>
+                            </Card>
+                          </Grid>
+                          {/* Middle Right: Freed Employees */}
+                          <Grid xs={12} sm={6}>
+                            <Card sx={{
+                              background: mode === 'dark'
+                                ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'
+                                : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                              color: mode === 'dark' ? 'white' : '#374151',
+                              height: '100%',
+                              minHeight: '12rem',
+                              '& .MuiTypography-root': {
+                                color: mode === 'dark' ? 'white' : '#374151'
+                              }
+                            }}>
+                              <Typography level="h4">Freed Employees</Typography>
+                              <Typography level="h2">
+                                {freedEmployees.toLocaleString()}
+                              </Typography>
+                              <Typography level="body-sm">
+                                Team members freed for higher-value work
+                              </Typography>
+                            </Card>
+                          </Grid>
+                          {/* Bottom Left: ROI */}
+                          <Grid xs={12} sm={6}>
+                            <Card sx={{
+                              background: mode === 'dark'
+                                ? 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)'
+                                : 'linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%)',
+                              color: mode === 'dark' ? 'white' : '#7c3aed',
+                              height: '100%',
+                              minHeight: '12rem',
+                              '& .MuiTypography-root': {
+                                color: mode === 'dark' ? 'white' : '#7c3aed'
+                              }
+                            }}>
+                              <Typography level="h4">ROI</Typography>
+                              <Typography level="h2">
+                                {formatPercentage(results.roiPercentage)}
+                              </Typography>
+                              <Typography level="body-sm">
+                                Return on investment
+                              </Typography>
+                            </Card>
+                          </Grid>
+                          {/* Bottom Right: Efficiency Improvement */}
+                          <Grid xs={12} sm={6}>
+                            <Card sx={{
+                              background: mode === 'dark'
+                                ? 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)'
+                                : 'linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%)',
+                              color: mode === 'dark' ? 'white' : '#7c3aed',
+                              height: '100%',
+                              minHeight: '12rem',
+                              '& .MuiTypography-root': {
+                                color: mode === 'dark' ? 'white' : '#7c3aed'
+                              }
+                            }}>
+                              <Typography level="h4">Efficiency Improvement</Typography>
+                              <Typography level="h2">
+                                {formatPercentage(results.efficiencyImprovement)}
+                              </Typography>
+                              <Typography level="body-sm">
+                                Operational efficiency gain
+                              </Typography>
+                            </Card>
+                          </Grid>
+                      </Grid>
                     );
                   })()}
                 </Box>
